@@ -1,0 +1,41 @@
+/* Shared local overrides for Typora themes.
+ * Keep these rules narrow so they don't override Typora's UI icon fonts.
+ *
+ * 字体配置：
+ * - 英文/代码：JetBrains Mono
+ * - 中文：思源黑体 (Source Han Sans SC)
+ */
+
+:root {
+    --text-font: 'JetBrains Mono', 'Source Han Sans SC', sans-serif;
+    --title-font: 'JetBrains Mono', 'Source Han Sans SC', sans-serif;
+    --monospace: 'JetBrains Mono', monospace;
+    --font-family: 'JetBrains Mono', 'Source Han Sans SC', sans-serif;
+    --font-body: 'JetBrains Mono', 'Source Han Sans SC', sans-serif;
+    --font-heading: 'JetBrains Mono', 'Source Han Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+#write {
+    font-family: 'JetBrains Mono', 'Source Han Sans SC', sans-serif;
+}
+
+#write h1,
+#write h2,
+#write h3,
+#write h4,
+#write h5,
+#write h6,
+#write strong,
+#write b {
+    font-family: 'JetBrains Mono', 'Source Han Sans SC', sans-serif;
+}
+
+#write code,
+#write pre,
+#write .md-fences,
+#write .md-fences *,
+.CodeMirror,
+.CodeMirror pre {
+    font-family: 'JetBrains Mono', monospace !important;
+}
