@@ -93,24 +93,55 @@
 
 ---
 
-## 迁移到新 Mac 的步骤
+## 迁移到新 Mac
+
+推荐使用仓库里的 `sync.sh`（安装字体、备份旧配置、创建软链接）：
+
+```bash
+# 1. 安装 Typora，并至少启动一次
+# 2. 克隆本仓库
+mkdir -p ~/Configs
+git clone https://github.com/leexeo/Typora.git ~/Configs/Typora
+cd ~/Configs/Typora
+
+# 3. 一键同步
+./sync.sh
+```
+
+重启 Typora，在 **主题** 菜单中选择即可。
+
+| 命令 | 作用 |
+|------|------|
+| `./sync.sh` | 安装字体 + 创建软链接（默认） |
+| `./sync.sh status` | 检查字体、软链接和已启用主题 |
+| `./sync.sh fonts` | 仅安装字体 |
+| `./sync.sh link` | 仅创建软链接 |
+| `./sync.sh extra` | 启用 `themes/extra-themes/` 中的可选主题 |
+| `./sync.sh --dry-run` | 只打印将要执行的操作 |
+| `./sync.sh --yes` | 非交互，自动确认备份 / 覆盖 |
+
+脚本会安装 README 列出的霞鹜文楷，以及 `themes/base.user.css` 实际使用的 JetBrains Mono 和思源黑体。已有 Typora 配置目录时会先备份为 `abnerworks.Typora.bak.<时间戳>`，不会直接删除。
+
+### 手动步骤（与脚本等价）
 
 1. **安装 Typora**（确保至少启动过一次，以生成默认配置目录）
 
 2. **克隆本仓库** 到 `~/Configs/Typora`：
    ```bash
    mkdir -p ~/Configs
-   git clone <仓库地址> ~/Configs/Typora
+   git clone https://github.com/leexeo/Typora.git ~/Configs/Typora
    ```
 
 3. **安装所需字体** 到 `~/Library/Fonts/`：
    - `LXGWWenKai-Regular.ttf`
    - `LXGWWenKai-Medium.ttf`
    - `LXGWWenKaiMono-Regular.ttf`
+   - （推荐）JetBrains Mono、思源黑体 Source Han Sans
 
-4. **删除 Typora 自动生成的默认配置目录**：
+4. **备份并移除 Typora 自动生成的默认配置目录**：
    ```bash
-   rm -rf ~/Library/Application\ Support/abnerworks.Typora
+   mv ~/Library/Application\ Support/abnerworks.Typora \
+      ~/Library/Application\ Support/abnerworks.Typora.bak
    ```
 
 5. **创建软链接**，将配置目录指向本仓库：
