@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Typora runtime / machine specific tokens
+.47DEQpj8HB
+.zG7Ji52WFu
+
+# Backups
+themes/backup_*
+themes/*.bak*
+*.bak*

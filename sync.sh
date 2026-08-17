@@ -315,6 +315,27 @@ install_source_han() {
     fi
 }
 
+has_pandoc() {
+    command -v pandoc >/dev/null 2>&1
+}
+
+install_pandoc() {
+    if has_pandoc; then
+        ok "Pandoc 已安装 ($(pandoc --version | head -n 1 | awk '{print $2}'))"
+        return 0
+    fi
+    info "未检测到 Pandoc（Word/LaTeX 导出依赖）"
+    if have_brew; then
+        info "Homebrew 安装 pandoc"
+        run brew install pandoc
+        if has_pandoc; then
+            ok "Pandoc 安装成功"
+        fi
+    else
+        warn "未检测到 Homebrew，跳过 Pandoc 自动安装。可手动安装：https://pandoc.org/installing.html"
+    fi
+}
+
 canonical_path() {
     (cd "$1" && pwd -P)
 }
@@ -469,6 +490,11 @@ cmd_status() {
     else
         warn "缺少思源黑体"
     fi
+    if has_pandoc; then
+        ok "Pandoc（高级导出引擎：$(pandoc --version | head -n 1 | awk '{print $2}')）"
+    else
+        warn "未安装 Pandoc（Word/LaTeX 导出依赖，可执行：brew install pandoc）"
+    fi
 
     echo
     printf '%b当前启用的主题%b（themes/*.css，会出现在 Typora 主题菜单）\n' "$BOLD" "$RESET"
@@ -497,6 +523,7 @@ cmd_install() {
         fi
     fi
     cmd_fonts
+    install_pandoc
     cmd_link
     section "完成"
     ok "主题与配置已同步。"
