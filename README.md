@@ -24,53 +24,40 @@
 
 | 路径 | 说明 |
 |------|------|
-| `themes/*.css` | **当前启用**的主题（Typora 主题菜单里可见） |
-| `themes/base.user.css` | **所有主题共享的全局增强覆盖**（字体解耦、Mac 视窗圆点、按键/图片美化、打印防截断） |
-| `themes/extra-themes/` | 可选主题，复制到 `themes/` 根目录后即可启用 |
-| `themes/old-themes/` | 过时/内置旧主题归档（Gothic、Newsprint、Pixyll、Whitey 等） |
-| `themes/archive-themes/` | 冷门主题归档，默认不使用 |
-| `themes/backup_20260302/` | 一次性全量备份，仅回溯用 |
+| `themes/*.css` | **当前启用**的主题（只有直接放在这一层的 `.css` 会出现在主题菜单） |
+| `themes/base.user.css` | **所有主题共享的全局增强**（正文字体与 JetBrains Mono 解耦、代码行不被拆开、打印防截断） |
+| `themes/old-themes/` | 未启用的主题归档。把某个 `.css` 和它的同名资源目录移回 `themes/` 即可恢复 |
 
 ---
 
-## 当前精选主题清单（共 12 款）
+## 当前精选主题（6 个）
 
-重启 Typora 后，在 **主题** 菜单中选择即可。6 款浅色 + 6 款深色完美配比：
+按「读程序项目的 Markdown」来选：代码块、表格、标题层级要清楚，长时间看不累。装饰性主题（粉雪、飞书风、衬线报刊、Drake 的十二变体）已归档。
 
-### 中文与日常写作
+重启 Typora 后在 **主题** 菜单里选择。当前默认仍是 **Vue**。
 
-| 主题 | 风格 | 说明 |
-|------|------|------|
-| `vue` / `vue-dark` | 浅/深 | Vue 官方文档风格，清新绿调，技术笔记首选 |
-| `drake` / `drake-light` / `drake-dark` | 浅/深 | Drake 系列，中文排版顶流，中英文/代码混排极佳 |
-| `konayuki-light` / `konayuki-dark` | 浅/深 | 「粉雪」，日系现代圆角卡片风，精致美观 |
-| `lark` | 浅色 | 飞书/云文档风格，清晰层次，中文办公沉淀首选 |
+| 主题 | 明暗 | 什么时候用 |
+|------|------|------------|
+| `github` | 浅色 | 内置 GitHub 主题。README 在网页上长什么样，这里就长什么样 |
+| `github-night` | 深色 | [kinoute/typora-github-night-theme](https://github.com/kinoute/typora-github-night-theme) master。同一套文档的 GitHub Dark |
+| `vue` | 浅色 | [blinkfox/typora-vue-theme](https://github.com/blinkfox/typora-vue-theme)。Vue 文档的标题和代码层次，日常阅读用这个 |
+| `vue-dark` | 深色 | Vue 的深色配对 |
+| `catppuccin-latte` | 浅色 | [Catppuccin](https://github.com/stephanlamoureux/typora-catppuccin)。低对比粉彩，适合连续看很长的文档 |
+| `catppuccin-mocha` | 深色 | Catppuccin 的深色配对 |
 
-### 经典与流行配色
+Catppuccin 的 Frappé / Macchiato 没有放进菜单。色板文件还在 `themes/catppuccin/` 里，只是没有对应的顶层 `.css`。
 
-| 主题 | 风格 | 说明 |
-|------|------|------|
-| `catppuccin-latte` / `catppuccin-mocha` | 浅/深 | 当代开发者最流行的高级柔和粉彩调 |
-| `nord` | 深色 | 经典北欧冷色调，温润护眼 |
-| `dracula` | 深色 | 经典高对比度紫黑编程风 |
+### 已归档（`themes/old-themes/`）
 
-### 可选主题（需手动启用）
+Drake、Dracula、Nord、粉雪、Lark，以及 Typora 自带的 Gothic、Newsprint、Pixyll、Whitey、Night。Night 由 GitHub Night 替代。
 
-`themes/extra-themes/` 中提供可选变体：
-- `drake-ayu.css` — Drake × Ayu
-- `drake-jb.css` — Drake × JetBrains
+Typora 升级会把 Gothic、Newsprint、Night、Pixyll、Whitey 再写回 `themes/`。升级后运行：
 
-复制到 `themes/` 根目录后重启 Typora 即可在主题菜单中启用。
+```bash
+./sync.sh prune
+```
 
-### 已归档主题（`themes/archive-themes/`）
-
-为避免主题菜单臃肿，以下效果一般、过时或冗余的主题已归档（如需恢复从 `archive-themes/` 拷回即可）：
-- **Cobalt / Solarized / Ayu Mirage / JetBrains Dark** — 早期对比度过大或缺乏文档层次
-- **Latex / Night / Print** — 排版僵硬或过时内置主题（全局已由 `base.user.css` 统一提供打印与导出优化）
-- **Catppuccin Frappé / Macchiato** — 冗余中间色版，仅保留最经典的 Latte 与 Mocha
-- **GitHub / Notion** — 已按需求移除
-
-如需恢复，从对应归档目录拷回 `themes/` 根目录即可。
+这会把它们重新归档，并保留内置的 `github`。
 
 ---
 
@@ -97,7 +84,7 @@ cd ~/Configs/Typora
 | `./sync.sh status` | 检查字体、软链接和已启用主题 |
 | `./sync.sh fonts` | 仅安装字体 |
 | `./sync.sh link` | 仅创建软链接 |
-| `./sync.sh extra` | 启用 `themes/extra-themes/` 中的可选主题 |
+| `./sync.sh prune` | 把升级写回的 Gothic / Newsprint / Night / Pixyll / Whitey 重新归档 |
 | `./sync.sh --dry-run` | 只打印将要执行的操作 |
 | `./sync.sh --yes` | 非交互，自动确认备份 / 覆盖 |
 

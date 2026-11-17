@@ -74,7 +74,8 @@ ${BOLD}命令${RESET}
   status     检查字体、软链接和主题状态
   fonts      仅安装所需字体
   link       仅创建配置目录软链接
-  extra      将 extra-themes 复制到 themes/，启用可选主题
+  prune      把 Typora 升级写回的内置主题重新归档（保留 Github）
+  extra      说明如何从 old-themes 手动恢复旧主题
   help       显示本帮助
 
 ${BOLD}选项${RESET}
@@ -87,7 +88,7 @@ ${BOLD}示例${RESET}
   cd ~/Configs/Typora
   ./sync.sh
   ./sync.sh status
-  ./sync.sh extra
+  ./sync.sh prune
 EOF
 }
 
@@ -389,37 +390,50 @@ cmd_link() {
     link_config
 }
 
-cmd_extra() {
-    section "启用可选主题"
-    local src dest name count=0
-    src="${REPO_DIR}/themes/extra-themes"
-    [[ -d "${src}" ]] || die "未找到 ${src}"
-    shopt -s nullglob
-    local files=("${src}"/*.css)
-    shopt -u nullglob
-    (( ${#files[@]} > 0 )) || die "extra-themes 中没有 .css 文件。"
-    for src in "${files[@]}"; do
-        name="$(basename "${src}")"
-        dest="${REPO_DIR}/themes/${name}"
-        if [[ -e "${dest}" ]]; then
-            info "已存在，跳过 ${name}"
-            continue
-        fi
-        run cp "${src}" "${dest}"
+# Typora 升级会把这些内置主题写回 themes/ 根目录。Github 属于精选，不归档。
+NOISE_THEMES=(
+    gothic.css
+    newsprint.css
+    night.css
+    pixyll.css
+    whitey.css
+    gothic
+    newsprint
+    night
+    pixyll
+)
+
+cmd_prune() {
+    section "归档升级带回的内置主题"
+    local name src dest moved=0
+    mkdir -p "${REPO_DIR}/themes/old-themes"
+    for name in "${NOISE_THEMES[@]}"; do
+        src="${REPO_DIR}/themes/${name}"
+        [[ -e "${src}" ]] || continue
+        dest="${REPO_DIR}/themes/old-themes/${name}"
         if (( DRY_RUN )); then
-            info "将启用 ${name%.css}"
+            info "将归档 ${name}"
         else
-            ok "已启用 ${name%.css}"
+            rm -rf "${dest}"
+            mv "${src}" "${dest}"
+            ok "已归档 ${name}"
         fi
-        count=$((count + 1))
+        moved=$((moved + 1))
     done
-    if (( count == 0 )); then
-        ok "可选主题均已启用"
+    if (( moved == 0 )); then
+        ok "没有需要归档的内置主题"
     elif (( DRY_RUN )); then
-        info "将新启用 ${count} 个主题（dry-run，未写入）"
+        info "将归档 ${moved} 项（dry-run，未写入）"
     else
-        ok "新启用 ${count} 个主题，重启 Typora 后出现在主题菜单"
+        ok "已归档 ${moved} 项。重启 Typora 后主题菜单恢复为精选 6 个"
     fi
+}
+
+cmd_extra() {
+    section "旧主题已归档"
+    warn "主题菜单固定为 Github、Github Night、Vue、Vue Dark、Catppuccin Latte、Catppuccin Mocha。"
+    info "其余主题在 ${REPO_DIR}/themes/old-themes/。"
+    info "要恢复某一个：把对应 .css 和同名资源目录移回 themes/，然后重启 Typora。"
 }
 
 list_enabled_themes() {
@@ -432,17 +446,8 @@ list_enabled_themes() {
     shopt -u nullglob
 }
 
-list_extra_themes() {
-    local f
-    shopt -s nullglob
-    for f in "${REPO_DIR}/themes/extra-themes"/*.css; do
-        printf '%s\n' "$(basename "${f%.css}")"
-    done | sort
-    shopt -u nullglob
-}
-
 cmd_status() {
-    local missing theme extra dest
+    local missing theme noise_name noise_src
     section "状态"
 
     printf '%b仓库%b    %s\n' "$BOLD" "$RESET" "${REPO_DIR}"
@@ -503,16 +508,15 @@ cmd_status() {
     done < <(list_enabled_themes)
 
     echo
-    printf '%b可选主题%b（themes/extra-themes，需 ./sync.sh extra）\n' "$BOLD" "$RESET"
-    while IFS= read -r extra; do
-        [[ -z "${extra}" ]] && continue
-        dest="${REPO_DIR}/themes/${extra}.css"
-        if [[ -e "${dest}" ]]; then
-            printf '  %s （已启用）\n' "${extra}"
+    printf '%b升级后可能被写回的内置主题%b（./sync.sh prune 会归档，保留 Github）\n' "$BOLD" "$RESET"
+    for noise_name in gothic newsprint night pixyll whitey; do
+        noise_src="${REPO_DIR}/themes/${noise_name}.css"
+        if [[ -e "${noise_src}" ]]; then
+            warn "${noise_name} 在主题菜单里，运行 ./sync.sh prune"
         else
-            printf '  %s （未启用）\n' "${extra}"
+            ok "${noise_name} 已不在菜单中"
         fi
-    done < <(list_extra_themes)
+    done
 }
 
 cmd_install() {
@@ -524,11 +528,11 @@ cmd_install() {
     fi
     cmd_fonts
     install_pandoc
+    cmd_prune
     cmd_link
     section "完成"
     ok "主题与配置已同步。"
     info "请重启 Typora，然后在「主题」菜单中选择。"
-    info "可选主题：./sync.sh extra"
     info "查看状态：./sync.sh status"
 }
 
@@ -562,7 +566,7 @@ parse_args() {
                 COMMAND="help"
                 shift
                 ;;
-            install|status|fonts|link|extra|help)
+            install|status|fonts|link|prune|extra|help)
                 if [[ -n "${COMMAND}" ]]; then
                     die "只能指定一个命令（已有 ${COMMAND}，又收到 ${arg}）"
                 fi
@@ -596,6 +600,7 @@ main() {
         status)  cmd_status ;;
         fonts)   cmd_fonts ;;
         link)    cmd_link ;;
+        prune)   cmd_prune ;;
         extra)   cmd_extra ;;
         *)       die "未知命令：${COMMAND}" ;;
     esac
